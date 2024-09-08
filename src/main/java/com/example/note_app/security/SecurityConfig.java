@@ -41,7 +41,7 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(Customizer.withDefaults())
-                .exceptionHandling(e -> e.authenticationEntryPoint(unauthorizedReqHandler))
+
                 .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new CustomLoggingFilter(), AuthTokenFilter.class)
                 .addFilterAfter(new RequestValidationFilter(), CustomLoggingFilter.class);
