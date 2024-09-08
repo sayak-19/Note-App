@@ -1,5 +1,8 @@
 package com.example.note_app.security;
 
+import com.example.note_app.security.jwt.AuthEntryPointjwt;
+import com.example.note_app.security.jwt.AuthTokenFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,18 +24,26 @@ import org.springframework.security.web.session.DisableEncodeUrlFilter;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    @Autowired
+    AuthEntryPointjwt unauthorizedReqHandler;
+
+    @Autowired
+    AuthTokenFilter authTokenFilter;
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .authorizeHttpRequests(req -> req
                         .requestMatchers("/api/csrf").permitAll()
-                        .requestMatchers("**/auth/public/**").permitAll()
+                        .requestMatchers("/api/auth/public/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(Customizer.withDefaults())
-                .addFilterBefore(new CustomLoggingFilter(), UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(e -> e.authenticationEntryPoint(unauthorizedReqHandler))
+                .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new CustomLoggingFilter(), AuthTokenFilter.class)
                 .addFilterAfter(new RequestValidationFilter(), CustomLoggingFilter.class);
 
         return httpSecurity.build();
