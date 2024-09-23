@@ -119,4 +119,9 @@ public class AuthController {
 
         return ResponseEntity.ok(userInfoResponse);
     }
+
+    @GetMapping("/username")
+    public String getUsername(@AuthenticationPrincipal UserDetails userDetails){
+        return userDetails.getUsername() != null ? userDetails.getUsername() : "";
+    }
 }
