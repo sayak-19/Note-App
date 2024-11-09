@@ -21,18 +21,23 @@ public class NoteController {
         return service.getNotesForUser(userdetails.getUsername());
     }
 
+    @GetMapping("/{id}")
+    public Note getNoteById(@PathVariable Long id) {
+        return service.getNoteForUser(id);
+    }
+
     @PostMapping
     public Note createNoteForUser(@RequestBody String content, @AuthenticationPrincipal UserDetails userDetails){
         return service.createNoteForUser(content, userDetails.getUsername());
     }
 
-    @PutMapping
-    public Note updateNote(@RequestBody String content, @PathVariable Long noteId){
+    @PutMapping("/{id}")
+    public Note updateNote(@RequestBody String content, @PathVariable(value = "id") Long noteId){
         return service.updateNoteForUser(noteId, content);
     }
 
-    @DeleteMapping
-    public void deleteNote(@PathVariable Long noteId){
+    @DeleteMapping("/{id}")
+    public void deleteNote(@PathVariable(value = "id") Long noteId){
         service.deleteNoteForUser(noteId);
     }
 }

@@ -1,9 +1,11 @@
 CREATE TABLE note (
     id BIGINT NOT NULL AUTO_INCREMENT,
-    content TINYTEXT,
+    content TEXT,
     owner_username VARCHAR(255),
+    created_at DATETIME,
     PRIMARY KEY (id)
 ) ENGINE=InnoDB;
+
 
 CREATE TABLE roles (
     role_id INTEGER NOT NULL AUTO_INCREMENT,
@@ -38,3 +40,11 @@ ALTER TABLE users
     ADD CONSTRAINT FKp56c1712k691lhsyewcssf40f
     FOREIGN KEY (role_id)
     REFERENCES roles (role_id);
+
+CREATE TABLE audit_log (
+     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+     action VARCHAR(20) NOT NULL,
+     username VARCHAR(20) NOT NULL,
+     note_id BIGINT,
+     time DATETIME
+);

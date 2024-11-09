@@ -1,7 +1,9 @@
 package com.example.note_app.controller;
 
+import com.example.note_app.entity.AuditLog;
 import com.example.note_app.entity.User;
 import com.example.note_app.repository.UserRepository;
+import com.example.note_app.service.AuditLogService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,15 +21,21 @@ import java.util.List;
 public class AdminController {
 
     private final UserRepository userRepository;
+    private final AuditLogService auditLogService;
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping()
+    @GetMapping(value = "/getAllUsers")
     public ResponseEntity<List<User>> getAllUser(){
         return ResponseEntity.ok(userRepository.findAll());
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/getAllUsers/{id}")
     public ResponseEntity<User> getUserById(@RequestParam String id){
         return ResponseEntity.ok(userRepository.findById(Long.parseLong(id)).orElseThrow(()-> new EntityNotFoundException("User not found!")));
+    }
+
+    @GetMapping(value = "/audit")
+    public ResponseEntity<List<AuditLog>> audit(){
+        return ResponseEntity.ok(auditLogService.fetchAllLog());
     }
 }
