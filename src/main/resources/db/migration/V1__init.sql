@@ -48,3 +48,13 @@ CREATE TABLE audit_log (
      note_id BIGINT,
      time DATETIME
 );
+
+CREATE TABLE password_reset_token (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    expiry_date TIMESTAMP NOT NULL,
+    used BOOLEAN DEFAULT FALSE,
+    user_id BIGINT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
