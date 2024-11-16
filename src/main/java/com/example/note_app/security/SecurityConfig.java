@@ -28,8 +28,8 @@ import java.util.Arrays;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Value("${frontend.url}")
-    String frontendUrl;
+    /*@Value("${frontend.url}")
+    String[] frontendUrl;*/
 
     @Autowired
     AuthEntryPointjwt unauthorizedReqHandler;
@@ -40,18 +40,19 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+                //.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                //.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))  //disabled CSRF in stateless api: https://github.com/spring-projects/spring-security/issues/5669
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(req -> req
-                        .requestMatchers("/api/csrf-token").permitAll()
+                        //.requestMatchers("/api/csrf-token").permitAll()
                         .requestMatchers("/api/auth/public/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(Customizer.withDefaults())
                 .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new CustomLoggingFilter(), AuthTokenFilter.class)
-                .addFilterAfter(new RequestValidationFilter(), CustomLoggingFilter.class);
+                .addFilterBefore(new CustomLoggingFilter(), AuthTokenFilter.class);
+                //.addFilterAfter(new RequestValidationFilter(), CustomLoggingFilter.class);
 
         return httpSecurity.build();
     }
@@ -66,14 +67,16 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    UrlBasedCorsConfigurationSource corsConfigurationSource() {
+    /*UrlBasedCorsConfigurationSource corsConfigurationSource() {
+        Arrays.stream(frontendUrl).forEach(System.out::println);
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(frontendUrl));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
-    }
+    }*/
 }
