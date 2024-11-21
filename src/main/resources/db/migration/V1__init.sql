@@ -24,7 +24,7 @@ CREATE TABLE users (
     email VARCHAR(50) NOT NULL,
     enabled BIT,
     is_two_factor_enabled BIT,
-    password VARCHAR(120) NOT NULL,
+    password VARCHAR(120),
     sign_up_method VARCHAR(255),
     two_factor_secret VARCHAR(255),
     updated_date DATETIME(6),

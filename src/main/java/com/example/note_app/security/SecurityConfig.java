@@ -2,10 +2,12 @@ package com.example.note_app.security;
 
 import com.example.note_app.security.jwt.AuthEntryPointjwt;
 import com.example.note_app.security.jwt.AuthTokenFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -37,6 +39,10 @@ public class SecurityConfig {
     @Autowired
     AuthTokenFilter authTokenFilter;
 
+    @Autowired
+    @Lazy
+    OAuth2LoginSuccessHandler auth2LoginSuccessHandler;
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
@@ -49,7 +55,10 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .oauth2Login(oauth2 -> oauth2.successHandler(auth2LoginSuccessHandler))
+                .exceptionHandling(e->e.authenticationEntryPoint(unauthorizedReqHandler))
                 .httpBasic(Customizer.withDefaults())
+                .formLogin(Customizer.withDefaults())
                 .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new CustomLoggingFilter(), AuthTokenFilter.class);
                 //.addFilterAfter(new RequestValidationFilter(), CustomLoggingFilter.class);
