@@ -1,8 +1,6 @@
 name: Keep Supabase Alive
 
 on:
-  schedule:
-    - cron: '*/14 * * * *'   # Runs every 14 minutes
   workflow_dispatch:          # Allows you to trigger it manually too
 
 jobs:
