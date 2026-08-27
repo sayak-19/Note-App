@@ -1,22 +1,33 @@
 name: Keep Supabase Alive
-
 on:
   schedule:
-    - cron: '*/14 * * * *'   # Runs every 14 minutes
-  workflow_dispatch:          # Allows you to trigger it manually too
-
+    - cron: '*/14 * * * *'
+  workflow_dispatch:
 jobs:
   ping:
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write        # needed to push commits
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Ping Render + Supabase via keep-alive endpoint
         run: |
-          response=$(curl -s -o /dev/null -w "%{http_code}" \
-            "${{ secrets.RENDER_URL }}/api/keep-alive")
-          echo "Status: $response"
-          if [ "$response" -ne 200 ]; then
+          response=$(curl -s -w "\n%{http_code}" "${{ secrets.RENDER_URL }}/api/keep-alive")
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | head -n-1)
+          echo "Status: $http_code"
+          echo "Response: $body"
+          if [ "$http_code" -ne 200 ]; then
             echo "❌ Keep-alive failed"
             exit 1
           fi
           echo "✅ DB pinged successfully"
+      - name: Keep repo active
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          echo "Last ping: $(date -u)" > .github/keep-alive.txt
+          git add .github/keep-alive.txt
+          git diff --cached --quiet || git commit -m "chore: keep-alive ping"
+          git push
